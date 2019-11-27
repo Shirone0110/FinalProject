@@ -1,0 +1,6 @@
+5 dimensions:
+- earning by educational attainment
+- earning ratio through time
+- earning ratio by age group
+- earning ratio by industry
+- percent employed/pay gap by occupations
