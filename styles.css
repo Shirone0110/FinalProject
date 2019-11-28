@@ -32,3 +32,28 @@
 {
     fill: red;
 }
+
+#subgraph
+{
+    float: left;
+}
+
+svg
+{
+    float: left;
+}
+
+#graph3xAxis line
+{
+    stroke: green;
+}
+
+#graph3xAxis path
+{
+    stroke: green;
+}
+
+#graph3xAxis text
+{
+    fill: green;
+}

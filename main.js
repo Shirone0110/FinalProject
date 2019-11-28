@@ -29,7 +29,8 @@ var setOccupation = function(d)
         WomenEarning: parseFloat(d.Womenearnings),
         MenEarning: parseFloat(d.Menearnings),
         Industry: d.Industry,
-        Common: d.Mostcommonfor
+        Common: d.Mostcommonfor,
+        Percent: parseFloat(d.Womenearnings) / parseFloat(d.Menearnings) * 100
     }
 }
 
@@ -157,15 +158,16 @@ var draw1 = function(dataset, xScale, yScale)
                     data1.forEach(function(element)
                     {
                         hash[element.Industry] = element;
+                        hash[element.Industry].Occ = [];
                     })
 
                     data2.forEach(function(e2)
                     {
                         //console.log(e2.Industry);
-                        hash[e2.Industry].Occ = e2;
+                        hash[e2.Industry].Occ.push(e2);
                     })
                 })
-                console.log(data1);
+                //console.log(data1);
                 setup2(data1);
             })
         }
@@ -174,7 +176,9 @@ var draw1 = function(dataset, xScale, yScale)
 
 var setup2 = function(dataset)
 {
-    var screen = {width: 1000, height: 800};
+    console.log(dataset);
+    
+    var screen = {width: 800, height: 800};
     var margins = {top: 50, right: 50, bottom: 50, left: 300};
 
     var width = screen.width - margins.left - margins.right;
@@ -234,12 +238,118 @@ var setup2 = function(dataset)
         .call(highxAxis)
         .attr("font-size", 14);
     
-    d3.selectAll(".tick text").on("mouseover", function(d)
+    d3.selectAll(".tick text").on("click", function(d)
     {
         console.log(d);
+        dataset.forEach(function(element)
+        {
+            if (element.Industry == d && element.Occ.length != 0)
+            {
+                setup3(element.Occ, screen.width, margins.top);
+            }
+        })
     })
     
     draw2(dataset, lowxScale, highxScale, NumyScale);
+}
+
+var insertLinebreaks = function (d) 
+{
+    var el = d3.select(this);
+    var words = d.toString().split(' ');
+    el.text('');
+
+    for (var i = 0; i < words.length; i++) 
+    {
+        var tspan = el.append('tspan').text(words[i] + " ");
+        if (i > 0 && (i % 3 == 0))
+            tspan.attr('x', -10).attr('dy', '20');
+    }
+};
+
+var setup3 = function(dataset, initwidth, margintop)
+{
+    var marginleft = initwidth + 50;
+    d3.selectAll("#subgraph *").remove();
+    
+    d3.select("#subgraph")
+        .style("left", marginleft + "px")
+        .style("top", margintop + "px")
+        .classed("hidden", false)
+        .append("svg")
+        .attr("id", "Occgraph")
+    
+    var screen = {width: 700, height: 600};
+    var margins = {top: 50, right: 20, bottom: 50, left: 250};
+
+    var width = screen.width - margins.left - margins.right;
+    var height = screen.height - margins.top - margins.bottom;
+    
+    d3.select("#Occgraph")
+        .attr("width", screen.width)
+        .attr("height", screen.height)
+        .append("g")
+        .attr("id", "graph3")
+        .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
+        .classed("hidden", false);
+    
+    var yScale = d3.scaleBand()
+        .domain(dataset.map(function(d){return d.Occupation;}))
+        .range([0, 75 * dataset.length])
+    
+    var xScale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([0, width])
+    
+    var NumyScale = d3.scaleLinear()
+        .domain([0, dataset.length])
+        .range([height - 75 * dataset.length, height])
+    
+    var xAxis = d3.axisBottom(xScale);
+    var yAxis = d3.axisLeft(yScale);
+    
+    d3.select("#graph3")
+        .append("g")
+        .classed("graph3axis", "true");
+    
+    d3.select(".graph3axis")
+        .append("g")
+        .attr("id", "graph3xAxis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .attr("font-size", 14);
+    
+    d3.select(".graph3axis")
+        .append("g")
+        .attr("id", "graph3yAxis")
+        .attr("transform", "translate(0," + (height - 75 * dataset.length) + ")")
+        .call(yAxis)
+        .attr("font-size", 14);
+    
+    d3.select("#graph3")
+        .selectAll(".tick text")
+        .each(insertLinebreaks);
+    
+    draw3(dataset, xScale, NumyScale);
+}
+
+var draw3 = function(dataset, xScale, yScale)
+{
+    d3.select("#graph3")
+        .selectAll("rect")
+        .data(dataset)
+        .enter()
+        .append("rect")
+        .attr("y", function(d, i)
+        {
+            return yScale(i) + 25;
+        })
+        .attr("height", 20)
+        .attr("width", function(d)
+        {
+            return xScale(d.Percent);
+        })
+        .attr("fill", "green");
 }
 
 var draw2 = function(dataset, lowxScale, highxScale, yScale)
