@@ -34,6 +34,26 @@ var setOccupation = function(d)
     }
 }
 
+var setWagegrowth = function(d)
+{
+    return {
+        Age: parseFloat(d.Age),
+        Paymale: parseFloat(d.Medianpaymale),
+        Payfemale: parseFloat(d.Medianpayfemale),
+        Growthmale: parseFloat(d.wagegrowthmale),
+        Growthfemale: parseFloat(d.wagegrowthfemale)
+    }
+}
+
+var setAgegroup = function(d) 
+{
+    return {
+        Start: parseFloat(d.Agestart),
+        End: parseFloat(d.Ageend),
+        Ratio: parseFloat(d.Earningratio)
+    }
+}
+
 var setup = function(dataset)
 {
     var screen = {width: 1000, height: 600};
@@ -145,7 +165,7 @@ var draw1 = function(dataset, xScale, yScale)
     .on("click", function()
     {
         var x = d3.event.pageX, y = d3.event.pageY;
-        console.log(x, y);
+        //console.log(x, y);
         if ((x2017 - x) * (x2017 - x) + (y2017 - y) * (y2017 - y) <= 9)
         {
             d3.csv("Data/Industry.csv", setIndustry).then(function(data1)
@@ -172,6 +192,139 @@ var draw1 = function(dataset, xScale, yScale)
             })
         }
     })
+    
+    d3.select("svg")
+        .on("click", function()
+        {
+            var x = d3.event.pageX, y = d3.event.pageY;
+            if ((x2018 - x) * (x2018 - x) + (y2018 - y) * (y2018 - y) <= 9)
+            {
+                d3.csv("Data/Wagegrowth.csv", setWagegrowth).then(function(data1)
+                {
+                    d3.csv("Data/Agegroup.csv", setAgegroup).then(function(data2)
+                    {
+                        setup4(data1, data2);
+                    })
+                })
+            }
+        })
+}
+
+var setup4 = function(Wagegrowth, Agegroup)
+{
+    var screen = {width: 1000, height: 600};
+    var margins = {top: 50, right: 50, bottom: 50, left: 50};
+
+    var width = screen.width - margins.left - margins.right;
+    var height = screen.height - margins.top - margins.bottom;
+    
+    d3.select("svg")
+        .attr("width", screen.width)
+        .attr("height", screen.height)
+        .append("g")
+        .attr("id", "graph4")
+        .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
+        .classed("hidden", false);
+    
+    d3.select("#graph1")
+        .classed("hidden", true);
+    
+    var xScale = d3.scaleBand()
+                    .domain(d3.range(16, 67))
+                    .range([0, width]);
+    
+    var yScale = d3.scaleLinear()
+                    .domain([0, 100])
+                    .range([height, 0]);
+    
+    var xAxis = d3.axisBottom(xScale)
+        .ticks(10);
+    var yAxis = d3.axisLeft(yScale);
+    d3.select("#graph4")
+        .append("g")
+        .classed("graph4axis", "true");
+    
+    d3.select(".graph4axis")
+        .append("g")
+        .attr("id", "graph4xAxis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+    
+    d3.select(".graph4axis")
+        .append("g")
+        .attr("id", "graph4yAxis")
+        .call(yAxis);
+    
+    drawAgegroup(Agegroup, xScale, yScale);
+    drawgrowth(Wagegrowth, xScale, yScale);
+}
+
+var drawAgegroup = function(dataset, xScale, yScale)
+{
+    d3.select("#graph4")
+        .append("g")
+        .attr("id", "graph4ratio")
+        .selectAll("rect")
+        .data(dataset)
+        .enter()
+        .append("rect")
+        .attr("x", function(d)
+        {
+            return xScale(d.Start) + 8;
+        })
+        .attr("y", function(d)
+        {
+            return yScale(100 - d.Ratio);
+        })
+        .attr("height", function(d)
+        {
+            return yScale(d.Ratio);
+        })
+        .attr("width", function(d)
+        {
+            return xScale(d.End) - xScale(d.Start);
+        })
+        .attr("fill", "yellow");
+}
+
+var drawgrowth = function(dataset, xScale, yScale)
+{
+    console.log(dataset);
+    d3.select("#graph4")
+        .append("g")
+        .attr("id", "graph4femalegrowth")
+        .selectAll("circle")
+        .data(dataset)
+        .enter()
+        .append("circle")
+        .attr("fill", "blue")
+        .attr("cx", function(d, i)
+        {
+            return xScale(d.Age) + 8;
+        })
+        .attr("cy", function(d)
+        {
+            return yScale(d.Growthfemale);
+        })
+        .attr("r", 3)
+    
+    d3.select("#graph4")
+        .append("g")
+        .attr("id", "graph4malegrowth")
+        .selectAll("circle")
+        .data(dataset)
+        .enter()
+        .append("circle")
+        .attr("fill", "red")
+        .attr("cx", function(d)
+        {
+            return xScale(d.Age) + 8;
+        })
+        .attr("cy", function(d)
+        {
+            return yScale(d.Growthmale);
+        })
+        .attr("r", 3)
 }
 
 var setup2 = function(dataset)
