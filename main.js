@@ -22,6 +22,17 @@ var setIndustry = function(d)
     }
 }
 
+var setOccupation = function(d)
+{
+    return {
+        Occupation: d.Occupation,
+        WomenEarning: parseFloat(d.Womenearnings),
+        MenEarning: parseFloat(d.Menearnings),
+        Industry: d.Industry,
+        Common: d.Mostcommonfor
+    }
+}
+
 var setup = function(dataset)
 {
     var screen = {width: 1000, height: 600};
@@ -66,6 +77,8 @@ var setup = function(dataset)
     draw1(dataset, xScale, yScale);
 }
 
+var x2017, y2017, x2018, y2018;
+
 var draw1 = function(dataset, xScale, yScale)
 {
     //console.log(dataset);
@@ -84,10 +97,10 @@ var draw1 = function(dataset, xScale, yScale)
             return yScale(num);
         })
         .attr("r", 3)
-        .attr("id", function(num, index)
+        /*.attr("id", function(num, index)
         {
             return "no" + index;
-        })
+        })*/
     
     var line = d3.select("#graph1")
         .append("g")
@@ -120,17 +133,44 @@ var draw1 = function(dataset, xScale, yScale)
             d3.select("#tooltip")
                 .classed("hidden", true);
         })
-}
-
-d3.select("svg")
+    
+    x2017 = 895;
+    y2017 = 195;
+    
+    x2018 = 926;
+    y2018 = 197;
+    
+    d3.select("svg")
     .on("click", function()
     {
-        d3.csv("Data/Industry.csv", setIndustry).then(function(data)
+        var x = d3.event.pageX, y = d3.event.pageY;
+        console.log(x, y);
+        if ((x2017 - x) * (x2017 - x) + (y2017 - y) * (y2017 - y) <= 9)
         {
-            console.log(data);
-            setup2(data);
-        })
+            d3.csv("Data/Industry.csv", setIndustry).then(function(data1)
+            {
+                //console.log(data1);
+                d3.csv("Data/Occupation.csv", setOccupation).then(function(data2)
+                {
+                    //console.log(data2);
+                    var hash = {};
+                    data1.forEach(function(element)
+                    {
+                        hash[element.Industry] = element;
+                    })
+
+                    data2.forEach(function(e2)
+                    {
+                        //console.log(e2.Industry);
+                        hash[e2.Industry].Occ = e2;
+                    })
+                })
+                console.log(data1);
+                setup2(data1);
+            })
+        }
     })
+}
 
 var setup2 = function(dataset)
 {
@@ -193,6 +233,11 @@ var setup2 = function(dataset)
         .attr("id", "highxAxis")
         .call(highxAxis)
         .attr("font-size", 14);
+    
+    d3.selectAll(".tick text").on("mouseover", function(d)
+    {
+        console.log(d);
+    })
     
     draw2(dataset, lowxScale, highxScale, NumyScale);
 }
