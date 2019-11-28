@@ -1,0 +1,34 @@
+.hidden
+{
+    visibility: hidden;
+}
+
+#highxAxis line
+{
+    stroke: blue;
+}
+
+#highxAxis path
+{
+    stroke: blue;
+}
+
+#highxAxis text
+{
+    fill: blue;
+}
+
+#lowxAxis line
+{
+    stroke: red;
+}
+
+#lowxAxis path
+{
+    stroke: red;
+}
+
+#lowxAxis text
+{
+    fill: red;
+}
