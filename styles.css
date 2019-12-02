@@ -57,3 +57,15 @@ svg
 {
     fill: green;
 }
+
+#tooltip
+{
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding: 10px;
+    background-color: white;
+    border-radius: 10px;
+    border: 1px solid black;
+    pointer-events: none;
+}

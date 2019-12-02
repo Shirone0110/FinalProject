@@ -15,10 +15,10 @@ var setIndustry = function(d)
         Industry: d.Industry,
         WomenEarning: parseFloat(d.Womensearnings),
         MenEarning: parseFloat(d.Mensearnings),
-        PercentEarning: parseFloat(d.Womensearnings) / parseFloat(d.Mensearnings) * 100,
+        PercentEarning: (parseFloat(d.Womensearnings) / parseFloat(d.Mensearnings) * 100).toFixed(2),
         NoWomen: parseFloat(d.Numberofwomen),
         NoMen: parseFloat(d.Numberofmen),
-        PercentNo: parseFloat(d.Numberofwomen) / parseFloat(d.Numberofmen) * 100
+        PercentNo: (parseFloat(d.Numberofwomen) / parseFloat(d.Numberofmen) * 100).toFixed(2)
     }
 }
 
@@ -30,7 +30,7 @@ var setOccupation = function(d)
         MenEarning: parseFloat(d.Menearnings),
         Industry: d.Industry,
         Common: d.Mostcommonfor,
-        Percent: parseFloat(d.Womenearnings) / parseFloat(d.Menearnings) * 100
+        Percent: (parseFloat(d.Womenearnings) / parseFloat(d.Menearnings) * 100).toFixed(2)
     }
 }
 
@@ -70,6 +70,13 @@ var setup = function(dataset)
         .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
         .classed("hidden", false);
     
+    d3.select("#graph1")
+        .append("text")
+        .attr("x", 90)
+        .attr("y", 0 - (margins.top / 2))
+        .style("font-size", "24px")
+        .text("Female to male earnings ratio of workers in the U.S. from 1990 to 2018")
+    
     var xScale = d3.scaleLinear()
                     .domain([0, 29])
                     .range([0, width]);
@@ -88,12 +95,14 @@ var setup = function(dataset)
         .append("g")
         .attr("id", "xAxis")
         .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+        .call(xAxis)
+        .attr("font-size", 14);
     
     d3.select(".axis")
         .append("g")
         .attr("id", "yAxis")
-        .call(yAxis);
+        .call(yAxis)
+        .attr("font-size", 14);
     
     draw1(dataset, xScale, yScale);
 }
@@ -103,6 +112,7 @@ var x2017, y2017, x2018, y2018;
 var draw1 = function(dataset, xScale, yScale)
 {
     //console.log(dataset);
+    
     d3.select("#graph1")
         .selectAll("circle")
         .data(dataset)
@@ -139,15 +149,20 @@ var draw1 = function(dataset, xScale, yScale)
         .datum(dataset)
         .attr("d", lineGenerator);
     
-    d3.select("#no27")
-        .on("mouseover", function()
+    d3.select("#graph1")
+        .selectAll("circle")
+        .on("mouseover", function(d, index)
         {
-            var label = "Click me!";
+            var label = d.toString();
+            if (index > 26) 
+            {
+                label = label + "\n Click me!";
+            }
             d3.select("#tooltip")
                 .text(label)
-                .style("left", (d3.event.pageX + 20) + "px")
-                .style("top", (d3.event.pageY - 28) + "px")
-                .classed("hidden", false);
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 18) + "px")
+                .classed("hidden", false)
         })
         .on("mouseout", function()
         {
@@ -161,7 +176,7 @@ var draw1 = function(dataset, xScale, yScale)
     x2018 = 926;
     y2018 = 197;
     
-    d3.select("svg")
+    d3.select("#graph1")
     .on("click", function()
     {
         var x = d3.event.pageX, y = d3.event.pageY;
@@ -213,7 +228,7 @@ var draw1 = function(dataset, xScale, yScale)
 var setup4 = function(Wagegrowth, Agegroup)
 {
     var screen = {width: 1000, height: 600};
-    var margins = {top: 50, right: 50, bottom: 50, left: 50};
+    var margins = {top: 100, right: 50, bottom: 50, left: 50};
 
     var width = screen.width - margins.left - margins.right;
     var height = screen.height - margins.top - margins.bottom;
@@ -225,6 +240,20 @@ var setup4 = function(Wagegrowth, Agegroup)
         .attr("id", "graph4")
         .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
         .classed("hidden", false);
+    
+    d3.select("#graph4")
+        .append("text")
+        .attr("x", 50)
+        .attr("y", -70)
+        .style("font-size", "24px")
+        .text("Female to male earnings ratio of workers in the U.S. in Q4 2018, by age group")
+    
+    d3.select("#graph4")
+        .append("text")
+        .attr("x", 70)
+        .attr("y", -40)
+        .style("font-size", "24px")
+        .text("and percent wage growth vs. 22-year-old by gender in the U.S. in 2018")
     
     d3.select("#graph1")
         .classed("hidden", true);
@@ -274,17 +303,35 @@ var drawAgegroup = function(dataset, xScale, yScale)
         })
         .attr("y", function(d)
         {
-            return yScale(100 - d.Ratio);
+            return yScale(d.Ratio);
         })
         .attr("height", function(d)
         {
-            return yScale(d.Ratio);
+            return yScale(100 - d.Ratio);
         })
         .attr("width", function(d)
         {
             return xScale(d.End) - xScale(d.Start);
         })
         .attr("fill", "yellow");
+    
+    d3.select("#graph4ratio")
+        .selectAll("rect")
+        .on("mouseover", function(d)
+        {
+            //console.log(d);
+            var label = d.Ratio.toString() + "%";
+            d3.select("#tooltip")
+                .text(label)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 18) + "px")
+                .classed("hidden", false)
+        })
+        .on("mouseout", function()
+        {
+            d3.select("#tooltip")
+                .classed("hidden", true);
+        })
 }
 
 var drawgrowth = function(dataset, xScale, yScale)
@@ -325,14 +372,50 @@ var drawgrowth = function(dataset, xScale, yScale)
             return yScale(d.Growthmale);
         })
         .attr("r", 3)
+    
+    d3.select("#graph4femalegrowth")
+        .selectAll("circle")
+        .on("mouseover", function(d)
+        {
+            //console.log(d);
+            var label = d.Growthfemale.toString() + "%";
+            d3.select("#tooltip")
+                .text(label)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 18) + "px")
+                .classed("hidden", false)
+        })
+        .on("mouseout", function()
+        {
+            d3.select("#tooltip")
+                .classed("hidden", true);
+        })
+    
+    d3.select("#graph4malegrowth")
+        .selectAll("circle")
+        .on("mouseover", function(d)
+        {
+            //console.log(d);
+            var label = d.Growthmale.toString() + "%";
+            d3.select("#tooltip")
+                .text(label)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 18) + "px")
+                .classed("hidden", false)
+        })
+        .on("mouseout", function()
+        {
+            d3.select("#tooltip")
+                .classed("hidden", true);
+        })
 }
 
 var setup2 = function(dataset)
 {
     console.log(dataset);
     
-    var screen = {width: 800, height: 800};
-    var margins = {top: 50, right: 50, bottom: 50, left: 300};
+    var screen = {width: 800, height: 1000};
+    var margins = {top: 120, right: 50, bottom: 50, left: 300};
 
     var width = screen.width - margins.left - margins.right;
     var height = screen.height - margins.top - margins.bottom;
@@ -344,6 +427,20 @@ var setup2 = function(dataset)
         .attr("id", "graph2")
         .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
         .classed("hidden", false);
+    
+    d3.select("#graph2")
+        .append("text")
+        .attr("x", 0)
+        .attr("y", -90)
+        .style("font-size", "24px")
+        .text("Gender wage gap by industry in the U.S. in 2017")
+    
+    d3.select("#graph2")
+        .append("text")
+        .attr("x", 15)
+        .attr("y", -60)
+        .style("font-size", "24px")
+        .text("by median weekly earnings (in U.S. dollars)")
     
     d3.select("#graph1")
         .classed("hidden", true);
@@ -446,6 +543,20 @@ var setup3 = function(dataset, initwidth, margintop)
         .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
         .classed("hidden", false);
     
+    d3.select("#graph3")
+        .append("text")
+        .attr("x", -50)
+        .attr("y", -20)
+        .style("font-size", "24px")
+        .text("Gender wage gap by occupation in the U.S. in 2017")
+    
+    d3.select("#graph3")
+        .append("text")
+        .attr("x", 0)
+        .attr("y", 10)
+        .style("font-size", "24px")
+        .text("by median weekly earnings (in U.S. dollars)")
+    
     var yScale = d3.scaleBand()
         .domain(dataset.map(function(d){return d.Occupation;}))
         .range([0, 75 * dataset.length])
@@ -503,6 +614,24 @@ var draw3 = function(dataset, xScale, yScale)
             return xScale(d.Percent);
         })
         .attr("fill", "green");
+    
+    d3.select("#graph3")
+        .selectAll("rect")
+        .on("mouseover", function(d)
+        {
+            //console.log(d);
+            var label = d.Percent.toString() + "%";
+            d3.select("#tooltip")
+                .text(label)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 18) + "px")
+                .classed("hidden", false)
+        })
+        .on("mouseout", function()
+        {
+            d3.select("#tooltip")
+                .classed("hidden", true);
+        })
 }
 
 var draw2 = function(dataset, lowxScale, highxScale, yScale)
@@ -542,4 +671,40 @@ var draw2 = function(dataset, lowxScale, highxScale, yScale)
             return highxScale(d.PercentNo);
         })
         .attr("fill", "blue")
+    
+    d3.select("#PercentEarning")
+        .selectAll("rect")
+        .on("mouseover", function(d)
+        {
+            //console.log(d);
+            var label = d.PercentEarning.toString() + "%";
+            d3.select("#tooltip")
+                .text(label)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 18) + "px")
+                .classed("hidden", false)
+        })
+        .on("mouseout", function()
+        {
+            d3.select("#tooltip")
+                .classed("hidden", true);
+        })
+    
+    d3.select("#PercentNo")
+        .selectAll("rect")
+        .on("mouseover", function(d)
+        {
+            //console.log(d);
+            var label = d.PercentNo.toString() + "%";
+            d3.select("#tooltip")
+                .text(label)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 18) + "px")
+                .classed("hidden", false)
+        })
+        .on("mouseout", function()
+        {
+            d3.select("#tooltip")
+                .classed("hidden", true);
+        })
 }
