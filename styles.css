@@ -3,32 +3,32 @@
     visibility: hidden;
 }
 
-#highxAxis line
+#RightxAxis line
 {
     stroke: blue;
 }
 
-#highxAxis path
+#RightxAxis path
 {
     stroke: blue;
 }
 
-#highxAxis text
+#RightxAxis text
 {
     fill: blue;
 }
 
-#lowxAxis line
+#LeftxAxis line
 {
     stroke: red;
 }
 
-#lowxAxis path
+#LeftxAxis path
 {
     stroke: red;
 }
 
-#lowxAxis text
+#LeftxAxis text
 {
     fill: red;
 }
@@ -58,7 +58,7 @@ svg
     fill: green;
 }
 
-#tooltip
+#tooltip, #clickme
 {
     position: absolute;
     width: auto;
