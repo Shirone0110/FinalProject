@@ -7,21 +7,6 @@ d3.csv("Data/Wagegap.csv", Wagegap).then(function(data)
 {
     console.log(data);
     setup(data);
-    d3.select("#button1")
-        .on("click", function()
-        {
-            d3.select("#graph1")
-                .classed("hidden", false);
-        
-            d3.select("#graph2")
-                .classed("hidden", true);
-            
-            d3.select("#subgraph")
-                .classed("hidden", true);
-        
-            d3.select("#graph4")
-                .classed("hidden", true);
-        })
 })
 
 var setIndustry = function(d)
@@ -136,20 +121,66 @@ var setup = function(dataset)
         .call(yAxis)
         .attr("font-size", 14);
     
+    d3.select("#graph1")
+        .append("g")
+        .attr("id", "circles")
+    
+    initialdraw1(dataset, numxScale, yScale);
+    
     draw1(dataset, numxScale, yScale);
+    
+    d3.select("#button1")
+        .on("click", function()
+        {
+            d3.select("#graph1")
+                .classed("hidden", false);
+        
+            d3.select("#graph2")
+                .classed("hidden", true);
+            
+            d3.select("#subgraph")
+                .classed("hidden", true);
+        
+            d3.select("#graph4")
+                .classed("hidden", true);
+        
+            d3.select("#legend")
+                .classed("hidden", true);
+        
+            initialdraw1(dataset, numxScale, yScale);
+            
+            draw1(dataset, numxScale, yScale);
+        })
 }
 
 var x2017, y2017, x2018, y2018;
+
+var initialdraw1 = function(dataset, xScale, yScale)
+{
+    d3.selectAll("#circles *").remove();
+    
+    d3.select("#circles")
+        .selectAll("circle")
+        .data(dataset)
+        .enter()
+        .append("circle")
+        .attr("fill", "black")
+        .attr("cx", function(num, index)
+        {
+            return xScale(index) + 15;
+        })
+        .attr("cy", yScale(0))
+        .attr("r", 0)
+}
 
 var draw1 = function(dataset, xScale, yScale)
 {
     //console.log(dataset);
     
-    d3.select("#graph1")
+    d3.select("#circles")
         .selectAll("circle")
-        .data(dataset)
-        .enter()
-        .append("circle")
+        .transition()
+        .duration(500)
         .attr("fill", "black")
         .attr("cx", function(num, index)
         {
@@ -160,10 +191,6 @@ var draw1 = function(dataset, xScale, yScale)
             return yScale(num);
         })
         .attr("r", 4)
-        /*.attr("id", function(num, index)
-        {
-            return "no" + index;
-        })*/
     
     var line = d3.select("#graph1")
         .append("g")
@@ -185,6 +212,9 @@ var draw1 = function(dataset, xScale, yScale)
         .selectAll("circle")
         .on("mouseover", function(d, index)
         {
+            d3.select(this)
+                .attr("fill", "yellow")
+            
             var label = (1990 + index).toString() + "," + d.toString() + "%";
             if (index > 26) 
             {
@@ -202,18 +232,15 @@ var draw1 = function(dataset, xScale, yScale)
         })
         .on("mouseout", function()
         {
+            d3.select(this)
+                .attr("fill", "black")
+        
             d3.select("#tooltip")
                 .classed("hidden", true);
         
             d3.select("#clickme")
                 .classed("hidden", true);
         })
-    
-    x2017 = 910;
-    y2017 = 196;
-    
-    x2018 = 941;
-    y2018 = 197;
     
     d3.csv("Data/Industry.csv", setIndustry).then(function(data1)
     {
@@ -238,21 +265,6 @@ var draw1 = function(dataset, xScale, yScale)
         setup2(data1);
     })
     
-    d3.select("#graph1")
-    .on("click", function()
-    {
-        var x = d3.event.pageX, y = d3.event.pageY;
-        console.log(x, y);
-        if ((x2017 - x) * (x2017 - x) + (y2017 - y) * (y2017 - y) <= 20)
-        {
-            d3.select("#graph1")
-                .classed("hidden", true)
-            
-            d3.select("#graph2")
-                .classed("hidden", false)
-        }
-    })
-    
     d3.csv("Data/Wagegrowth.csv", setWagegrowth).then(function(data1)
     {
         d3.csv("Data/Agegroup.csv", setAgegroup).then(function(data2)
@@ -261,19 +273,19 @@ var draw1 = function(dataset, xScale, yScale)
         })
     })
     
-    d3.select("svg")
-        .on("click", function()
-        {
-            var x = d3.event.pageX, y = d3.event.pageY;
-            if ((x2018 - x) * (x2018 - x) + (y2018 - y) * (y2018 - y) <= 20)
-            {
-                d3.select("#graph1")
-                    .classed("hidden", true)
-                
-                d3.select("#graph4")
-                    .classed("hidden", false)
-            }
-        })
+    d3.selectAll("#legend *").remove();
+    
+    d3.select("#legend")
+        .classed("hidden", false)
+        .attr("transform", "translate(0, 0)")
+    
+    d3.select("#legend")
+        .append("text")
+        .attr("font-size", "24px")
+        .attr("x", 50)
+        .attr("y", 70)
+        .text("See the last 2 circles!")
+        .attr("fill", "black")
 }
 
 var setup4 = function(Wagegrowth, Agegroup)
@@ -338,11 +350,31 @@ var setup4 = function(Wagegrowth, Agegroup)
         .call(yAxis)
         .style("font-size", 14);
     
-    drawAgegroup(Agegroup, xScale, yScale);
-    drawgrowth(Wagegrowth, xScale, yScale);
+    x2018 = 941;
+    y2018 = 197;
+    
+    initialdrawAgegroup(Agegroup, xScale, yScale);
+    initialdrawgrowth(Wagegrowth, xScale, yScale);
+    
+    d3.select("svg")
+        .on("click", function()
+        {
+            var x = d3.event.pageX, y = d3.event.pageY;
+            if ((x2018 - x) * (x2018 - x) + (y2018 - y) * (y2018 - y) <= 20)
+            {
+                d3.select("#graph1")
+                    .classed("hidden", true)
+                
+                d3.select("#graph4")
+                    .classed("hidden", false)
+                
+                drawAgegroup(Agegroup, xScale, yScale);
+                drawgrowth(Wagegrowth, xScale, yScale);
+            }
+        })
 }
 
-var drawAgegroup = function(dataset, xScale, yScale)
+var initialdrawAgegroup = function(dataset, xScale, yScale)
 {
     d3.select("#graph4")
         .append("g")
@@ -351,6 +383,25 @@ var drawAgegroup = function(dataset, xScale, yScale)
         .data(dataset)
         .enter()
         .append("rect")
+        .attr("x", function(d)
+        {
+            return xScale(d.Start) + 8;
+        })
+        .attr("y", yScale(0))
+        .attr("height", 0)
+        .attr("width", function(d)
+        {
+            return xScale(d.End) - xScale(d.Start);
+        })
+        .attr("fill", "yellow");
+}
+
+var drawAgegroup = function(dataset, xScale, yScale)
+{
+    d3.select("#graph4ratio")
+        .selectAll("rect")
+        .transition()
+        .duration(1000)
         .attr("x", function(d)
         {
             return xScale(d.Start) + 8;
@@ -373,6 +424,8 @@ var drawAgegroup = function(dataset, xScale, yScale)
         .selectAll("rect")
         .on("mouseover", function(d)
         {
+            d3.select(this)
+            .attr("fill", "green")
             //console.log(d);
             var label = d.Ratio.toString() + "%";
             d3.select("#tooltip")
@@ -383,14 +436,16 @@ var drawAgegroup = function(dataset, xScale, yScale)
         })
         .on("mouseout", function()
         {
+            d3.select(this)
+                .attr("fill", "yellow")
+        
             d3.select("#tooltip")
                 .classed("hidden", true);
         })
 }
 
-var drawgrowth = function(dataset, xScale, yScale)
+var initialdrawgrowth = function(dataset, xScale, yScale)
 {
-    console.log(dataset);
     d3.select("#graph4")
         .append("g")
         .attr("id", "graph4femalegrowth")
@@ -398,6 +453,42 @@ var drawgrowth = function(dataset, xScale, yScale)
         .data(dataset)
         .enter()
         .append("circle")
+        .transition()
+        .duration(1000)
+        .attr("fill", "blue")
+        .attr("cx", function(d, i)
+        {
+            return xScale(d.Age) + 8;
+        })
+        .attr("cy", yScale(0))
+        .attr("r", 0)
+    
+    d3.select("#graph4")
+        .append("g")
+        .attr("id", "graph4malegrowth")
+        .selectAll("circle")
+        .data(dataset)
+        .enter()
+        .append("circle")
+        .transition()
+        .duration(1000)
+        .delay(500)
+        .attr("fill", "red")
+        .attr("cx", function(d)
+        {
+            return xScale(d.Age) + 8;
+        })
+        .attr("cy", yScale(0))
+        .attr("r", 0)
+}
+
+var drawgrowth = function(dataset, xScale, yScale)
+{
+    console.log(dataset);
+    d3.select("#graph4femalegrowth")
+        .selectAll("circle")
+        .transition(2000)
+        .delay(1000)
         .attr("fill", "blue")
         .attr("cx", function(d, i)
         {
@@ -425,13 +516,10 @@ var drawgrowth = function(dataset, xScale, yScale)
         .datum(dataset)
         .attr("d", lineGenerator);
     
-    d3.select("#graph4")
-        .append("g")
-        .attr("id", "graph4malegrowth")
+    d3.select("#graph4malegrowth")
         .selectAll("circle")
-        .data(dataset)
-        .enter()
-        .append("circle")
+        .transition(2000)
+        .delay(2000)
         .attr("fill", "red")
         .attr("cx", function(d)
         {
@@ -443,19 +531,20 @@ var drawgrowth = function(dataset, xScale, yScale)
         })
         .attr("r", 4)
     
-    var linemale = d3.select("#graph4femalegrowth")
+    var lineGenerator = d3.line()
+        .x(function(d){return xScale(d.Age) + 8})
+        .y(function(d){return yScale(d.Growthmale)})
+        .curve(d3.curveNatural);
+    
+    var linemale = d3.select("#graph4malegrowth")
         .append("g")
         .attr("id", "linemale")
         .attr("fill", "none")
         .attr("stroke", "red")
         .attr("stroke-width", 1)
     
-    var lineGenerator = d3.line()
-        .x(function(d){return xScale(d.Age) + 8})
-        .y(function(d){return yScale(d.Growthmale)})
-        .curve(d3.curveNatural);
-    
-    linemale.append("path")
+    d3.select("#linemale")
+        .append("path")
         .datum(dataset)
         .attr("d", lineGenerator);
     
@@ -463,6 +552,9 @@ var drawgrowth = function(dataset, xScale, yScale)
         .selectAll("circle")
         .on("mouseover", function(d)
         {
+            d3.select(this)
+                .attr("fill", "green")
+        
             //console.log(d);
             var label = d.Growthfemale.toString() + "%";
             d3.select("#tooltip")
@@ -473,6 +565,9 @@ var drawgrowth = function(dataset, xScale, yScale)
         })
         .on("mouseout", function()
         {
+            d3.select(this)
+                .attr("fill", "blue")
+        
             d3.select("#tooltip")
                 .classed("hidden", true);
         })
@@ -481,6 +576,9 @@ var drawgrowth = function(dataset, xScale, yScale)
         .selectAll("circle")
         .on("mouseover", function(d)
         {
+            d3.select(this)
+                .attr("fill", "green")
+        
             //console.log(d);
             var label = d.Growthmale.toString() + "%";
             d3.select("#tooltip")
@@ -491,9 +589,14 @@ var drawgrowth = function(dataset, xScale, yScale)
         })
         .on("mouseout", function()
         {
+            d3.select(this)
+                .attr("fill", "red")
+        
             d3.select("#tooltip")
                 .classed("hidden", true);
         })
+    
+     drawLegend2();
 }
 
 var insertLinebreaks = function (d) 
@@ -510,6 +613,23 @@ var insertLinebreaks = function (d)
             tspan.attr('x', -10).attr('dy', '20');
     }
 };
+
+var initialdraw3 = function(dataset, xScale, yScale)
+{ 
+    d3.select("#graph3")
+        .selectAll("rect")
+        .data(dataset)
+        .enter()
+        .append("rect")
+        .attr("x", xScale(0))
+        .attr("y", function(d, i)
+        {
+            return yScale(i) + 10;
+        })
+        .attr("height", 20)
+        .attr("width", 0)
+        .attr("fill", "green")
+}
 
 var setup3 = function(dataset, initwidth, margintop)
 {
@@ -588,16 +708,71 @@ var setup3 = function(dataset, initwidth, margintop)
         .selectAll(".tick text")
         .each(insertLinebreaks);
     
+    initialdraw3(dataset, xScale, NumyScale);
+    
     draw3(dataset, xScale, NumyScale);
+}
+
+var drawLegend2 = function()
+{   
+    d3.select("#legend")
+        .classed("hidden", false)
+    
+    d3.selectAll("#legend *").remove();
+    
+    d3.select("#legend")
+        .append("g")
+        .attr("id", "legendrect")
+        .attr("fill", "yellow")
+        .attr("transform", "translate(0, 20)")
+        .append("rect")
+        .attr("width", 10).attr("height", 10)
+
+    d3.select("#legendrect")
+        .append("text")
+        .text("Percent earnings of female to male by age group")
+        .attr("x", 15).attr("y", 10)
+        .attr("fill", "black")
+        .attr("font-size", "20px");
+    
+    d3.select("#legend")
+        .append("g")
+        .attr("id", "legendred")
+        .attr("fill", "red")
+        .attr("transform", "translate(0, 60)")
+        .append("circle")
+        .attr("cx", 5).attr("cy", 5)
+        .attr("r", 4)
+    
+    d3.select("#legendred")
+        .append("text")
+        .text("Male percent wage growth vs. 22-year-old")
+        .attr("x", 15).attr("y", 10)
+        .attr("fill", "black")
+        .attr("font-size", "20px")
+    
+    d3.select("#legend")
+        .append("g")
+        .attr("id", "legendblue")
+        .attr("fill", "blue")
+        .attr("transform", "translate(0, 100)")
+        .append("circle")
+        .attr("cx", 5).attr("cy", 5)
+        .attr("r", 4)
+    
+    d3.select("#legendblue")
+        .append("text")
+        .text("Female percent wage growth vs. 22-year-old")
+        .attr("x", 15).attr("y", 10)
+        .attr("fill", "black")
+        .attr("font-size", "20px")
 }
 
 var draw3 = function(dataset, xScale, yScale)
 {
     d3.select("#graph3")
         .selectAll("rect")
-        .data(dataset)
-        .enter()
-        .append("rect")
+        .transition(2000)
         .attr("y", function(d, i)
         {
             return yScale(i) + 25;
@@ -609,10 +784,16 @@ var draw3 = function(dataset, xScale, yScale)
         })
         .attr("fill", "green");
     
+    d3.select("#legendgreen")
+        .classed("hidden", false);
+    
     d3.select("#graph3")
         .selectAll("rect")
         .on("mouseover", function(d)
         {
+            d3.select(this)
+                .attr("fill", "yellow")
+        
             //console.log(d);
             var label = d.Percent.toString() + "%";
             d3.select("#tooltip")
@@ -623,6 +804,9 @@ var draw3 = function(dataset, xScale, yScale)
         })
         .on("mouseout", function()
         {
+            d3.select(this)
+                .attr("fill", "green")
+        
             d3.select("#tooltip")
                 .classed("hidden", true);
         })
@@ -751,11 +935,9 @@ var setup2 = function(dataset)
         })
     })
     
-    draw2(dataset, LeftxScale, RightxScale, NumyScale, width, regionWidth);
-}
-
-var draw2 = function(dataset, LeftxScale, RightxScale, yScale, width, regionWidth)
-{   
+    x2017 = 910;
+    y2017 = 196;
+    
     d3.select("#graph2")
         .append("g")
         .attr("id", "PercentEarning")
@@ -763,6 +945,134 @@ var draw2 = function(dataset, LeftxScale, RightxScale, yScale, width, regionWidt
         .data(dataset)
         .enter()
         .append("rect")
+    
+    d3.select("#graph2")
+        .append("g")
+        .attr("id", "PercentNo")
+        .selectAll("rect")
+        .data(dataset)
+        .enter()
+        .append("rect")
+    
+    initialdraw2(dataset, LeftxScale, RightxScale, NumyScale, width, regionWidth)
+    
+    d3.select("#graph1")
+    .on("click", function()
+    {
+        var x = d3.event.pageX, y = d3.event.pageY;
+        console.log(x, y);
+        if ((x2017 - x) * (x2017 - x) + (y2017 - y) * (y2017 - y) <= 20)
+        {
+            d3.select("#graph1")
+                .classed("hidden", true)
+            
+            d3.select("#graph2")
+                .classed("hidden", false)
+            
+            draw2(dataset, LeftxScale, RightxScale, NumyScale, width, regionWidth);
+        }
+    })
+}
+
+var initialdraw2 = function(dataset, LeftxScale, RightxScale, yScale, width, regionWidth)
+{    
+    d3.select("#PercentEarning")
+        .selectAll("rect")
+        .transition(2000)
+        .attr("x", LeftxScale(0))
+        .attr("y", function(d, i)
+        {
+            return yScale(i) + 10;
+        })
+        .attr("height", 20)
+        .attr("width", 0)
+        .attr("fill", "red")
+    
+    d3.select("#PercentNo")
+        .selectAll("rect")
+        .transition(2000)
+        .attr("x", function(d)
+        {
+            return width - regionWidth;
+        })
+        .attr("y", function(d, i)
+        {
+            return yScale(i) + 10;
+        })
+        .attr("height", 20)
+        .attr("width", 0)
+        .attr("fill", "blue")
+}
+
+var drawLegend = function()
+{   
+    d3.select("#legend")
+        .classed("hidden", false);
+    
+    d3.selectAll("#legend *").remove();
+    
+    d3.select("#legend")
+        .append("g")
+        .attr("id", "legendred")
+        .attr("fill", "red")
+        .attr("transform", "translate(0, 20)")
+        .append("rect")
+        .attr("width", 10).attr("height", 10)
+
+    d3.select("#legendred")
+        .append("text")
+        .text("Percent earnings of female to male by industry")
+        .attr("x", 15).attr("y", 10)
+        .attr("fill", "black")
+        .attr("font-size", "20px");
+
+    d3.select("#legend")
+        .append("g")
+        .attr("id", "legendblue")
+        .attr("fill", "blue")
+        .attr("transform", "translate(0, 50)")
+        .append("rect")
+        .attr("width", 10).attr("height", 10)
+
+    d3.select("#legendblue")
+        .append("text")
+        .text("Percent number of female workers to male workers")
+        .attr("x", 15).attr("y", 10)
+        .attr("fill", "black")
+        .attr("font-size", "20px")
+
+    d3.select("#legendblue")
+        .append("text")
+        .text("by industry")
+        .attr("x", 15).attr("y", 40)
+        .attr("fill", "black")
+        .attr("font-size", "20px")
+    
+    d3.select("#legend")
+        .append("g")
+        .attr("id", "legendgreen")
+        .attr("fill", "green")
+        .attr("transform", "translate(0, 110)")
+        .append("rect")
+        .attr("width", 10).attr("height", 10)
+
+    d3.select("#legendgreen")
+        .append("text")
+        .text("Percent wage of female to male by occupation")
+        .attr("x", 15).attr("y", 10)
+        .attr("fill", "black")
+        .attr("font-size", "20px")
+    
+    d3.select("#legendgreen")
+        .classed("hidden", true);
+}
+
+var draw2 = function(dataset, LeftxScale, RightxScale, yScale, width, regionWidth)
+{   
+    
+    d3.select("#PercentEarning")
+        .selectAll("rect")
+        .transition(2000)
         .attr("x", function(d)
         {
             return LeftxScale(d.PercentEarning);
@@ -778,13 +1088,9 @@ var draw2 = function(dataset, LeftxScale, RightxScale, yScale, width, regionWidt
         })
         .attr("fill", "red")
     
-    d3.select("#graph2")
-        .append("g")
-        .attr("id", "PercentNo")
+    d3.select("#PercentNo")
         .selectAll("rect")
-        .data(dataset)
-        .enter()
-        .append("rect")
+        .transition(2000)
         .attr("x", function(d)
         {
             return width - regionWidth;
@@ -805,6 +1111,9 @@ var draw2 = function(dataset, LeftxScale, RightxScale, yScale, width, regionWidt
         .selectAll("rect")
         .on("mouseover", function(d)
         {
+            d3.select(this)
+                .attr("fill", "yellow")
+        
             //console.log(d);
             var label = d.PercentEarning.toString() + "%";
             d3.select("#tooltip")
@@ -815,6 +1124,9 @@ var draw2 = function(dataset, LeftxScale, RightxScale, yScale, width, regionWidt
         })
         .on("mouseout", function()
         {
+            d3.select(this)
+                .attr("fill", "red")
+        
             d3.select("#tooltip")
                 .classed("hidden", true);
         })
@@ -823,6 +1135,9 @@ var draw2 = function(dataset, LeftxScale, RightxScale, yScale, width, regionWidt
         .selectAll("rect")
         .on("mouseover", function(d)
         {
+            d3.select(this)
+                .attr("fill", "yellow")
+        
             //console.log(d);
             var label = d.PercentNo.toString() + "%";
             d3.select("#tooltip")
@@ -833,7 +1148,12 @@ var draw2 = function(dataset, LeftxScale, RightxScale, yScale, width, regionWidt
         })
         .on("mouseout", function()
         {
+            d3.select(this)
+                .attr("fill", "blue")
+        
             d3.select("#tooltip")
                 .classed("hidden", true);
         })
+    
+    drawLegend();
 }
