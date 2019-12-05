@@ -43,7 +43,7 @@ svg
     float: left;
 }
 
-#graph3xAxis line
+/*#graph3xAxis line
 {
     stroke: green;
 }
@@ -56,7 +56,7 @@ svg
 #graph3xAxis text
 {
     fill: green;
-}
+}*/
 
 #tooltip, #clickme
 {

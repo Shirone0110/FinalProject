@@ -84,10 +84,10 @@ var setup = function(dataset)
     
     d3.select("#graph1")
         .append("text")
-        .attr("x", 90)
+        .attr("x", 30)
         .attr("y", 0 - (margins.top / 2))
         .style("font-size", "24px")
-        .text("Female to male earnings ratio of workers in the U.S. from 1990 to 2018")
+        .text("Female to male earnings ratio of workers in the U.S. from 1990 to 2018 (percent)")
     
     var xScale = d3.scaleBand()
         .domain(d3.range(1990, 2019))
@@ -284,7 +284,7 @@ var draw1 = function(dataset, xScale, yScale)
         .attr("font-size", "24px")
         .attr("x", 50)
         .attr("y", 70)
-        .text("See the last 2 circles!")
+        .text("See the last 2 dots!")
         .attr("fill", "black")
 }
 
@@ -671,7 +671,7 @@ var setup3 = function(dataset, initwidth, margintop)
     
     d3.select("#graph3")
         .append("text")
-        .attr("x", -140)
+        .attr("x", -170)
         .attr("y", -50)
         .style("font-size", "24px")
         .text("Gender wage gap by occupation in the U.S. in 2017")
@@ -681,7 +681,7 @@ var setup3 = function(dataset, initwidth, margintop)
         .attr("x", -110)
         .attr("y", -20)
         .style("font-size", "24px")
-        .text("by median weekly earnings (in U.S. dollars)")
+        .text("by median weekly earnings (percent)")
     
     var yScale = d3.scaleBand()
         .domain(dataset.map(function(d){return d.Occupation;}))
@@ -794,9 +794,14 @@ var draw3 = function(dataset, xScale, yScale)
         {
             return xScale(d.Percent);
         })
-        .attr("fill", "green");
+        .attr("fill", function(d)
+        {
+            if (d.Common == "Men") return "yellow";
+            if (d.Common == "Women") return "pink";
+            if (d.Common == "Both") return "orange";
+        });
     
-    d3.select("#legendgreen")
+    d3.select("#legendocc")
         .classed("hidden", false);
     
     d3.select("#graph3")
@@ -804,7 +809,7 @@ var draw3 = function(dataset, xScale, yScale)
         .on("mouseover", function(d)
         {
             d3.select(this)
-                .attr("fill", "yellow")
+                .attr("fill", "green")
         
             //console.log(d);
             var label = d.Percent.toString() + "%";
@@ -817,7 +822,12 @@ var draw3 = function(dataset, xScale, yScale)
         .on("mouseout", function()
         {
             d3.select(this)
-                .attr("fill", "green")
+                .attr("fill", function(d)
+                {
+                if (d.Common == "Men") return "yellow";
+                if (d.Common == "Women") return "pink";
+                if (d.Common == "Both") return "orange";
+                })
         
             d3.select("#tooltip")
                 .classed("hidden", true);
@@ -852,10 +862,10 @@ var setup2 = function(dataset)
     
     d3.select("#graph2")
         .append("text")
-        .attr("x", regionWidth - 40)
+        .attr("x", regionWidth - 10)
         .attr("y", -60)
         .style("font-size", "24px")
-        .text("by median weekly earnings (in U.S. dollars)")
+        .text("by median weekly earnings (percent)")
     
     //d3.select("#graph1")
     //    .classed("hidden", true);
@@ -1062,20 +1072,54 @@ var drawLegend = function()
     
     d3.select("#legend")
         .append("g")
-        .attr("id", "legendgreen")
-        .attr("fill", "green")
+        .attr("id", "legendocc")
+    
+    d3.select("#legendocc")
+        .append("g")
+        .attr("id", "commonmen")
+        .attr("fill", "yellow")
         .attr("transform", "translate(0, 110)")
         .append("rect")
         .attr("width", 10).attr("height", 10)
 
-    d3.select("#legendgreen")
+    d3.select("#commonmen")
         .append("text")
-        .text("Percent wage of female to male by occupation")
+        .text("Occupation most common for men")
         .attr("x", 15).attr("y", 10)
         .attr("fill", "black")
         .attr("font-size", "20px")
     
-    d3.select("#legendgreen")
+    d3.select("#legendocc")
+        .append("g")
+        .attr("id", "commonwomen")
+        .attr("fill", "pink")
+        .attr("transform", "translate(0, 150)")
+        .append("rect")
+        .attr("width", 10).attr("height", 10)
+
+    d3.select("#commonwomen")
+        .append("text")
+        .text("Occupation most common for women")
+        .attr("x", 15).attr("y", 10)
+        .attr("fill", "black")
+        .attr("font-size", "20px")
+    
+    d3.select("#legendocc")
+        .append("g")
+        .attr("id", "commonboth")
+        .attr("fill", "orange")
+        .attr("transform", "translate(0, 190)")
+        .append("rect")
+        .attr("width", 10).attr("height", 10)
+
+    d3.select("#commonboth")
+        .append("text")
+        .text("Occupation most common for both men and women")
+        .attr("x", 15).attr("y", 10)
+        .attr("fill", "black")
+        .attr("font-size", "20px")
+    
+    d3.select("#legendocc")
         .classed("hidden", true);
 }
 
