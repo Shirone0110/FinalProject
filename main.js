@@ -447,7 +447,7 @@ var drawAgegroup = function(dataset, xScale, yScale)
         .on("mouseover", function(d)
         {
             d3.select(this)
-            .attr("fill", "green")
+            .attr("fill", "pink")
             //console.log(d);
             var label = d.Ratio.toString() + "%";
             d3.select("#tooltip")
@@ -808,7 +808,7 @@ var draw3 = function(dataset, xScale, yScale)
         .on("mouseover", function(d)
         {
             d3.select(this)
-                .attr("fill", "pink")
+                .attr("fill", "green")
         
             //console.log(d);
             var label = d.Percent.toString() + "%";
