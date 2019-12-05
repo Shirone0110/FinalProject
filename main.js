@@ -190,7 +190,7 @@ var draw1 = function(dataset, xScale, yScale)
         {
             return yScale(num);
         })
-        .attr("r", 4)
+        .attr("r", 6)
     
     var line = d3.select("#graph1")
         .append("g")
@@ -353,6 +353,30 @@ var setup4 = function(Wagegrowth, Agegroup)
     x2018 = 941;
     y2018 = 197;
     
+    d3.select("#graph4")
+        .append("g")
+        .attr("id", "graph4ratio")
+        .selectAll("rect")
+        .data(Agegroup)
+        .enter()
+        .append("rect")
+    
+    d3.select("#graph4")
+        .append("g")
+        .attr("id", "graph4femalegrowth")
+        .selectAll("circle")
+        .data(Wagegrowth)
+        .enter()
+        .append("circle")
+    
+    d3.select("#graph4")
+        .append("g")
+        .attr("id", "graph4malegrowth")
+        .selectAll("circle")
+        .data(Wagegrowth)
+        .enter()
+        .append("circle")
+    
     initialdrawAgegroup(Agegroup, xScale, yScale);
     initialdrawgrowth(Wagegrowth, xScale, yScale);
     
@@ -360,13 +384,16 @@ var setup4 = function(Wagegrowth, Agegroup)
         .on("click", function()
         {
             var x = d3.event.pageX, y = d3.event.pageY;
-            if ((x2018 - x) * (x2018 - x) + (y2018 - y) * (y2018 - y) <= 20)
+            if ((x2018 - x) * (x2018 - x) + (y2018 - y) * (y2018 - y) <= 40)
             {
                 d3.select("#graph1")
                     .classed("hidden", true)
                 
                 d3.select("#graph4")
                     .classed("hidden", false)
+                
+                initialdrawAgegroup(Agegroup, xScale, yScale);
+                initialdrawgrowth(Wagegrowth, xScale, yScale);
                 
                 drawAgegroup(Agegroup, xScale, yScale);
                 drawgrowth(Wagegrowth, xScale, yScale);
@@ -376,13 +403,8 @@ var setup4 = function(Wagegrowth, Agegroup)
 
 var initialdrawAgegroup = function(dataset, xScale, yScale)
 {
-    d3.select("#graph4")
-        .append("g")
-        .attr("id", "graph4ratio")
+    d3.select("#graph4ratio")
         .selectAll("rect")
-        .data(dataset)
-        .enter()
-        .append("rect")
         .attr("x", function(d)
         {
             return xScale(d.Start) + 8;
@@ -446,13 +468,8 @@ var drawAgegroup = function(dataset, xScale, yScale)
 
 var initialdrawgrowth = function(dataset, xScale, yScale)
 {
-    d3.select("#graph4")
-        .append("g")
-        .attr("id", "graph4femalegrowth")
+    d3.select("#graph4femalegrowth")
         .selectAll("circle")
-        .data(dataset)
-        .enter()
-        .append("circle")
         .transition()
         .duration(1000)
         .attr("fill", "blue")
@@ -463,13 +480,8 @@ var initialdrawgrowth = function(dataset, xScale, yScale)
         .attr("cy", yScale(0))
         .attr("r", 0)
     
-    d3.select("#graph4")
-        .append("g")
-        .attr("id", "graph4malegrowth")
+    d3.select("#graph4malegrowth")
         .selectAll("circle")
-        .data(dataset)
-        .enter()
-        .append("circle")
         .transition()
         .duration(1000)
         .delay(500)
@@ -961,7 +973,7 @@ var setup2 = function(dataset)
     {
         var x = d3.event.pageX, y = d3.event.pageY;
         console.log(x, y);
-        if ((x2017 - x) * (x2017 - x) + (y2017 - y) * (y2017 - y) <= 20)
+        if ((x2017 - x) * (x2017 - x) + (y2017 - y) * (y2017 - y) <= 40)
         {
             d3.select("#graph1")
                 .classed("hidden", true)

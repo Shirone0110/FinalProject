@@ -69,3 +69,8 @@ svg
     border: 1px solid black;
     pointer-events: none;
 }
+
+#graph1>text, #graph2>text, #graph3>text, #graph4>text
+{
+    font-weight: bold;
+}
