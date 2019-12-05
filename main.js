@@ -640,7 +640,6 @@ var initialdraw3 = function(dataset, xScale, yScale)
         })
         .attr("height", 20)
         .attr("width", 0)
-        .attr("fill", "green")
 }
 
 var setup3 = function(dataset, initwidth, margintop)
@@ -809,7 +808,7 @@ var draw3 = function(dataset, xScale, yScale)
         .on("mouseover", function(d)
         {
             d3.select(this)
-                .attr("fill", "green")
+                .attr("fill", "pink")
         
             //console.log(d);
             var label = d.Percent.toString() + "%";
